@@ -12,9 +12,7 @@ function epm_rest_api_initialize() {
     register_rest_route('epm/v1', '/posts', array(
         'methods' => 'POST',
         'callback' => 'epm_create_new_posts',
-//        'permission_callback' => function () {
-//            return current_user_can('publish_posts');
-//        }
+        'permission_callback' => '__return_true'
     ));
 
     register_rest_route('epm/v1', '/posts/(?P<id>\d+)', array(
@@ -27,9 +25,7 @@ function epm_rest_api_initialize() {
                 }
             ),
         ),
-//        'permission_callback' => function () {
-//            return current_user_can('edit_posts');
-//        }
+        'permission_callback' => '__return_true'
     ));
 
     register_rest_route('epm/v1', '/posts/(?P<id>\d+)', array(
@@ -42,9 +38,7 @@ function epm_rest_api_initialize() {
                 }
             ),
         ),
-//        'permission_callback' => function () {
-//            return current_user_can('delete_posts');
-//        }
+        'permission_callback' => '__return_true'
     ));
 
     register_rest_route('epm/v1', '/posts/(?P<id>\d+)', array(
@@ -57,9 +51,7 @@ function epm_rest_api_initialize() {
                 }
             ),
         ),
-//        'permission_callback' => function () {
-//            return current_user_can('delete_posts');
-//        }
+        'permission_callback' => '__return_true'
     ));
 }
 
@@ -111,12 +103,20 @@ function epm_update_posts_by_id($request) {
     } else {
         $post = array(
             'ID' => $id,
-            'post_title' => $title,
-            'post_content' => $content,
-            'post_category' => array($category),
-            'post_status' => $status,
             'post_type' => 'post',
         );
+        if (!empty($title)) {
+            $post['post_title'] = $title;
+        }
+        if (!empty($content)) {
+            $post['post_content'] = $content;
+        }
+        if (!empty($category)) {
+            $post['post_category'] = [$category];
+        }
+        if (!empty($status)) {
+            $post['post_status'] = $status;
+        }
         $post_id = wp_update_post($post);
         if ($post_id) {
             wp_set_post_terms($post_id, array($category), 'category');
